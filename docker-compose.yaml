@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  app:
+    container_name: app
+    image: app
+
+    build: 
+      context: .
+      # target: app
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    environment:
+      - POSTGRES_DB=workstatus
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_HOST_AUTH_METHOD=trust 
+      # - DATABASE_URL=postgresql://postgres:password@db:5432/workstatus
+    depends_on:
+      - db
+    command: sh -c "npx prisma migrate deploy && npm run build && npm run start"
+
+  db:
+    container_name: db
+    image: postgres:latest
+    # build: 
+    #   context: .
+    #   target: postgres:latest
+    ports:
+      - "5432:5432"
+    # restart: always
+      # - DATABASE_URL=postgresql://postgres:12345@db:5432/workstatus
+    environment:
+      - POSTGRES_DB=workstatus
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_HOST_AUTH_METHOD=trust 
+      - DATABASE_URL=postgresql://postgres:12345@db:5432/workstatus
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

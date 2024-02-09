@@ -1,0 +1,59 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-2                 
+  ECR_REPOSITORY: nextjs           
+  ECS_CLUSTER: Next-app                
+  ECS_TASK_DEFINITION: ../../nextjs.json 
+#   CONTAINER_NAME: docker    
+  SERVICE_NAME: App-service
+jobs:
+    deploy:
+      name: Deploy
+      runs-on: ubuntu-latest
+  
+      steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: AKIAZI2LGWDGMICUNVDJ
+          aws-secret-access-key: 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
+          aws-region: us-east-2
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+  
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+  
+      # Build and push App image
+      - name: Build and push App Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: nextjs # Replace with your repository name
+          IMAGE_TAG1: app
+          IMAGE_TAG2: db
+        run: |
+          docker-compose up --build -d
+          docker-compose exec -T app npx prisma migrate deploy 
+          docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
+          docker tag postgres $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
+
+      - name: Register task definition
+        run: |
+            TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition app --query "taskDefinition.taskDefinitionArn" --output text)
+            echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
+      - name: Update and Run ECS Service
+        run: |
+          aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $TASK_DEF_ARN --force-new-deployment
+
+      
+      

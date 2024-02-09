@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // url = "postgresql://postgres:12345@localhost:5432/workstatus?schema=public"
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model dailydetails {
+ id    Int    @id @default(autoincrement())
+  name String?   @db.VarChar(50)
+  date DateTime @default(now()) @db.Date
+  mrng String?
+  evng String?
+
+
+}
+
+model User {
+  name String?   @db.VarChar(50)
+  date DateTime? @db.Date
+  mrng String?
+  evng String?
+
+@@ignore
+}
