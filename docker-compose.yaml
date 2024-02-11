@@ -16,6 +16,7 @@ services:
       - POSTGRES_PASSWORD=12345
       - POSTGRES_HOST_AUTH_METHOD=trust 
       - CARGO_NET_GIT_FETCH_WITH_CLI=true
+      - DATABASE_URL=postgresql://postgres:12345@localhost:5432/workstatus
       # - DATABASE_URL=postgresql://postgres:password@db:5432/workstatus
     depends_on:
       - localhost
@@ -38,7 +39,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=12345
       - POSTGRES_HOST_AUTH_METHOD=trust 
-      - DATABASE_URL=postgresql://postgres:12345@localhost:5432/workstatus
+
       - CARGO_NET_GIT_FETCH_WITH_CLI=true
     volumes:
       - postgres_data:/var/lib/postgresql/data
