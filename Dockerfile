@@ -8,8 +8,7 @@ FROM node:18-alpine as build
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
-RUN npx prisma generate
-RUN yarn build
+RUN npx prisma generate && yarn build && yarn cache clean
 
 EXPOSE 3000
 
