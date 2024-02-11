@@ -48,9 +48,12 @@ jobs:
           echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
           docker-compose up --build -d  
       - name: Prisma Migrate
+        env:
+          DATABASE_URL: postgresql://postgres:12345@localhost:5432/workstatus?schema=public 
         run: |
+          export NODE_OPTIONS=--max_old_space_size=4096
           docker-compose exec -T app npx prisma migrate deploy 
-          
+
       - name: Tag docker images
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
