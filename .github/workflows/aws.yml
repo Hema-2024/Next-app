@@ -56,7 +56,7 @@ jobs:
         run: |
           docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
           docker tag postgres $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1a
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
 
       - name: Register task definition
