@@ -43,13 +43,13 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: nextjs # Replace with your repository name
           IMAGE_TAG1: app
-          IMAGE_TAG2: db
+          IMAGE_TAG2: localhost
         run: |
           docker-compose up --build -d
           docker-compose exec -T app npx prisma migrate deploy 
           docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
           docker tag postgres $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1a
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
 
       - name: Register task definition
