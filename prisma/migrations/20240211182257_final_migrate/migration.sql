@@ -1,9 +1,12 @@
 -- CreateTable
 CREATE TABLE "dailydetails" (
+    "id" SERIAL NOT NULL,
     "name" VARCHAR(50),
-    "date" DATE,
+    "date" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "mrng" TEXT,
-    "evng" TEXT
+    "evng" TEXT,
+
+    CONSTRAINT "dailydetails_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
