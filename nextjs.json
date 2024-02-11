@@ -1,9 +1,9 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-2:637423497420:task-definition/app:10",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:637423497420:task-definition/app:12",
     "containerDefinitions": [
         {
             "name": "db",
-            "image": "637423497420.dkr.ecr.us-east-2.amazonaws.com/nextjs:db",
+            "image": "637423497420.dkr.ecr.us-east-2.amazonaws.com/nextjs:localhost",
             "cpu": 0,
             "portMappings": [],
             "essential": true,
@@ -42,14 +42,24 @@
             "essential": true,
             "environment": [],
             "mountPoints": [],
-            "volumesFrom": []
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/app",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            }
         }
     ],
     "family": "app",
     "taskRoleArn": "arn:aws:iam::637423497420:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::637423497420:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 10,
+    "revision": 12,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -95,7 +105,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2024-02-08T12:48:14.805Z",
+    "registeredAt": "2024-02-11T17:03:06.656Z",
     "registeredBy": "arn:aws:iam::637423497420:root",
     "tags": []
 }
