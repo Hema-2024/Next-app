@@ -42,7 +42,7 @@ jobs:
           IMAGE_TAG2: localhost
         run: |
             docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-            docker run -rm $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate dev
+            docker run $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate dev
 
       - name: Push the repository
         env:
