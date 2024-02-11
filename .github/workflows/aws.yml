@@ -46,8 +46,12 @@ jobs:
           IMAGE_TAG2: localhost
         run: |
           echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
-          docker-compose up --build -d
+          docker-compose up --build -d 
+      - name: Prisma Migrate
+        run: |
           docker-compose exec -T app npx prisma migrate deploy 
+      - name: Tag docker images
+        run: |
           docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
           docker tag postgres $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1a
