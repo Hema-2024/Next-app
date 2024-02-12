@@ -3,8 +3,6 @@ name: Deploy to Amazon ECS
 on:
   workflow_run:
     workflows: ["main"]
-    types:
-      - completed
 
 env:
   AWS_REGION: us-east-2                 
@@ -74,7 +72,7 @@ jobs:
         run: |
             TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition app --query "taskDefinition.taskDefinitionArn" --output text)
             echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
-            
+
       - name: Update and Run ECS Service
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $TASK_DEF_ARN --force-new-deployment
