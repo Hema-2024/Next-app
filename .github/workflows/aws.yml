@@ -2,7 +2,7 @@ name: Deploy to Amazon ECS
 
 on:
   workflow_run:
-    workflows: ["Build and push"]
+    workflows: ["main"]
     types:
       - completed
 
@@ -33,16 +33,30 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-     
-      - name: Pull the repository
+   
+      - name: Clear Docker layers and clear yarn cache
+        run: |
+          docker system prune -af --volumes
+          yarn cache clean
+      
+      - name: Build and push App Docker image
+        env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: nextjs # Replace with your repository name
+            IMAGE_TAG1: app
+            IMAGE_TAG2: localhost
+        run: |
+            echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
+            docker-compose up --build -d  
+
+      - name: Migrate and deploy
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: nextjs # Replace with your repository name
           IMAGE_TAG1: app
           IMAGE_TAG2: localhost
         run: |
-            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-            docker run --rm --network=next-app_default -e DATABASE_URL="postgresql://postgres:12345@db:5432/workstatus" $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate deploy
+            docker run --rm --network=next-app_default -e DATABASE_URL="postgresql://postgres:12345@localhost:5432/workstatus" $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate deploy
 
 
       - name: Push the repository
@@ -52,12 +66,15 @@ jobs:
               IMAGE_TAG1: app
               IMAGE_TAG2: localhost
         run: |
-                docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-    
+            docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
+            docker tag postgres $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
       - name: Register task definition
         run: |
             TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition app --query "taskDefinition.taskDefinitionArn" --output text)
             echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
+            
       - name: Update and Run ECS Service
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $TASK_DEF_ARN --force-new-deployment
