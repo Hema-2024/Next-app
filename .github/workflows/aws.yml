@@ -47,6 +47,7 @@ jobs:
             echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
             docker-compose up --build -d  
             sleep 10s
+            docker run -e POSTGRES_PASSWORD=12345 postgres:latest -d
             docker run --rm --network=next-app_default $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate deploy
 
       # - name: Migrate and deploy
