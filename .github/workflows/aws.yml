@@ -1,9 +1,9 @@
 name: Deploy to Amazon ECS
 
 on:
-  workflow_run:
-    workflows: ["main"]
-
+  push:
+    branches:
+      - main
 env:
   AWS_REGION: us-east-2                 
   ECR_REPOSITORY: nextjs           
