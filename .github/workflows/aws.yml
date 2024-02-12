@@ -42,7 +42,7 @@ jobs:
           IMAGE_TAG2: localhost
         run: |
             docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-            docker run --rm --network=Next-app_default -e DATABASE_URL="postgresql://postgres:12345@db:5432/workstatus" $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate deploy
+            docker run --rm --network=next-app_default -e DATABASE_URL="postgresql://postgres:12345@db:5432/workstatus" $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate deploy
 
 
       - name: Push the repository
