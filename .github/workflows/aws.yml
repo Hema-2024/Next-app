@@ -48,6 +48,7 @@ jobs:
             docker-compose up --build -d  
             sleep 10s
             docker run -d -e POSTGRES_PASSWORD=12345 postgres -d workstatus
+            # docker run --rm --network=next-app_default app npx prisma migrate deploy
 
       # - name: Migrate and deploy
       #   env:
