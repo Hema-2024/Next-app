@@ -48,7 +48,7 @@ jobs:
             docker-compose up --build -d  
             sleep 10s
             docker run -d -e POSTGRES_PASSWORD=12345 postgres -d workstatus
-            docker run --rm --network=next-app_default $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate deploy
+            docker run --rm --network=next-app_default app npx prisma migrate deploy
 
       # - name: Migrate and deploy
       #   env:
