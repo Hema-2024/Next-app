@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "db",
-            "image": "637423497420.dkr.ecr.us-east-2.amazonaws.com/nextjs:localhost",
+            "image": "637423497420.dkr.ecr.us-east-2.amazonaws.com/nextjs:db",
             "cpu": 0,
             "portMappings": [],
             "essential": true,
