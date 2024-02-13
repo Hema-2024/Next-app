@@ -59,7 +59,12 @@ jobs:
       - name: Check if ECS repository exists
         id: check_repository
         run: |
-            aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY_NAME}} || exit 0
+            if aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY_NAME }}; then
+              echo "Repository already exists"
+            else
+              echo "Repository does not exist"
+              echo "::set-output name=REPO_EXISTS::false"
+            fi
         
       - name: Check if ECS task definition exists
         id: check_task_definition
@@ -72,9 +77,9 @@ jobs:
           aws ecs create-cluster --cluster-name ${{ env.ECS_CLUSTER_NAME }}
 
       - name: Create ECR if not exists
-        if: steps.check_repository.outputs.stdout == ''
+        if: steps.check_repository.outputs.REPO_EXISTS == 'false'
         run: |
-            aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY_NAME}}
+            aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY_NAME }}
       
       - name: Push to the repository
         env:
