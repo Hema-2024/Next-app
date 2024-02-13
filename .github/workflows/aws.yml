@@ -13,12 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       
-      # Login to Amazon ECR
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-   
-
       - name: Read config.json and set environment variables
         id: read_config
         run: |
@@ -92,8 +86,8 @@ jobs:
           IMAGE_TAG1: app
                 
         run: |
-            docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
+            docker tag $IMAGE_TAG1  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
+            docker push  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
 
       - name: Retrieve AWS account ID
         id: get-account-id
@@ -104,7 +98,7 @@ jobs:
         run: | 
                 aws ecs register-task-definition \
                 --family ${{env.TASK_NAME}} \
-                --execution-role-arn "arn:aws:iam::${{env.AWS_ACCOUNT_ID}}:role/${{env.ECS_TASK_ROLE}}" \
+                --execution-role-arn "arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/${{env.ECS_TASK_ROLE}}" \
                 --container-definitions '[
                     {
                       "name": "App",
