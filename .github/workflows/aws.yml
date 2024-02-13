@@ -13,6 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+   
 
       - name: Read config.json and set environment variables
         id: read_config
@@ -81,24 +86,29 @@ jobs:
         run: |
             aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY_NAME }}
       
-      - name: Push to the repository
+      - name: Push the repository
         env:
-            IMAGE_TAG1: app
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG1: app
+                
         run: |
-          echo "Length of ACCOUNT_ID: ${{ secrets.YOUR_ACCOUNT_ID}}"
-          docker tag $IMAGE_TAG1 ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
-          docker push ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG1
+            docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
 
+      - name: Retrieve AWS account ID
+        id: get-account-id
+        run: echo "AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)" >> $GITHUB_ENV
+          
       - name: Create task definiton
         id: create_task
         run: | 
                 aws ecs register-task-definition \
                 --family ${{env.TASK_NAME}} \
-                --execution-role-arn "arn:aws:iam::${{ secrets.YOUR_ACCOUNT_ID}}:role/${{env.ECS_TASK_ROLE}}" \
+                --execution-role-arn "arn:aws:iam::${{env.AWS_ACCOUNT_ID}}:role/${{env.ECS_TASK_ROLE}}" \
                 --container-definitions '[
                     {
                       "name": "App",
-                     "image": ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1,
+                     "image": ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1,
                       "memoryReservation": 512,
                       "cpu": 256,
                       "essential": true,
