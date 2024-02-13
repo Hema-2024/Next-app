@@ -22,8 +22,8 @@ jobs:
           ecsClusterName=$(jq -r '.aws.ecsClusterName' config.json)
           ecsServiceName=$(jq -r '.aws.ecsServiceName' config.json)
           elbName=$(jq -r '.aws.elbName' config.json)
-          ecsTaskExecutionRole = $(jq -r '.aws.ecsTaskExecutionRole' config.json)
-          taskdef = $(jq -r '.aws.taskdef' config.json)
+          ecsTaskExecutionRole=$(jq -r '.aws.ecsTaskExecutionRole' config.json)
+          taskdef=$(jq -r '.aws.taskdef' config.json)
 
           echo "REGION=$region" >> $GITHUB_ENV
           echo "ECR_REPOSITORY_NAME=$ecrRepositoryName" >> $GITHUB_ENV
