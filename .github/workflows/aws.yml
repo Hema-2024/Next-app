@@ -22,16 +22,16 @@ jobs:
           ecsClusterName=$(jq -r '.aws.ecsClusterName' config.json)
           ecsServiceName=$(jq -r '.aws.ecsServiceName' config.json)
           elbName=$(jq -r '.aws.elbName' config.json)
-          ecsTask = $(jq -r 'aws.ecsTaskExecutionRole' config.json)
-          taskname = $(jq -r 'aws.taskdef' config.json)
+          ecsTaskExecutionRole = $(jq -r 'aws.ecsTaskExecutionRole' config.json)
+          taskdef = $(jq -r 'aws.taskdef' config.json)
 
           echo "REGION=$region" >> $GITHUB_ENV
           echo "ECR_REPOSITORY_NAME=$ecrRepositoryName" >> $GITHUB_ENV
           echo "ECS_CLUSTER_NAME=$ecsClusterName" >> $GITHUB_ENV
           echo "ECS_SERVICE_NAME=$ecsServiceName" >> $GITHUB_ENV
           echo "ELB_NAME=$elbName" >> $GITHUB_ENV
-          echo "ECS_TASK_ROLE=$ecsTask" >>$GITHUB_ENV
-          echo "TASK_NAME=$taskname" >>$GITHUB_ENV
+          echo "ECS_TASK_ROLE=$ecsTaskExecutionRole" >>$GITHUB_ENV
+          echo "TASK_NAME=$taskdef" >>$GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
