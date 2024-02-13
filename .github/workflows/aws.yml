@@ -1,84 +1,120 @@
-name: Deploy to Amazon ECS
+name: ECS Service Deployment
 
 on:
   push:
     branches:
       - main
-env:
-  AWS_REGION: us-east-2                 
-  ECR_REPOSITORY: nextjs           
-  ECS_CLUSTER: Next-app                
-  ECS_TASK_DEFINITION: ../../nextjs.json 
-#   CONTAINER_NAME: docker    
-  SERVICE_NAME: App-service
+
 jobs:
-    deploy:
-      name: Deploy
-      runs-on: ubuntu-latest
-  
-      steps:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+
+      - name: Read config.json and set environment variables
+        id: read_config
+        run: |
+          region=$(jq -r '.aws.region' config.json)
+          ecrRepositoryName=$(jq -r '.aws.ecrRepositoryName' config.json)
+          ecsClusterName=$(jq -r '.aws.ecsClusterName' config.json)
+          ecsServiceName=$(jq -r '.aws.ecsServiceName' config.json)
+          elbName=$(jq -r '.aws.elbName' config.json)
+          ecsTask = $(jq -r 'aws.ecsTaskExecutionRole' config.json)
+          taskname = $(jq -r 'aws.taskdef' config.json)
+
+          echo "REGION=$region" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY_NAME=$ecrRepositoryName" >> $GITHUB_ENV
+          echo "ECS_CLUSTER_NAME=$ecsClusterName" >> $GITHUB_ENV
+          echo "ECS_SERVICE_NAME=$ecsServiceName" >> $GITHUB_ENV
+          echo "ELB_NAME=$elbName" >> $GITHUB_ENV
+          echo "ECS_TASK_ROLE=$ecsTask" >>$GITHUB_ENV
+          echo "TASK_NAME=$taskname" >>$GITHUB_ENV
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-east-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }} 
 
-      - name: Checkout repository
-        uses: actions/checkout@v2
-  
-      # Login to Amazon ECR
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-   
+      
       - name: Clear Docker layers and clear yarn cache
         run: |
           docker system prune -af --volumes
           yarn cache clean
       
       - name: Build and push App Docker image
-        env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: nextjs # Replace with your repository name
-            IMAGE_TAG1: app
-            IMAGE_TAG2: db
         run: |
             echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
-            docker-compose up --build -d  
-            sleep 10s
-            docker run -d -e POSTGRES_PASSWORD=12345 postgres -d workstatus
-            docker run --rm --network=next-app_default app npx prisma migrate deploy
+            docker-compose up --build -d 
 
-      # - name: Migrate and deploy
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: nextjs # Replace with your repository name
-      #     IMAGE_TAG1: app
-      #     IMAGE_TAG2: localhost
-      #   run: |
-      #       docker run --rm --network=next-app_default $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 npx prisma migrate deploy
+      - name: Check if ECS cluster exists
+        id: check_cluster
+        run: |
+          aws ecs describe-clusters --cluster ${{ env.ECS_CLUSTER_NAME}} || exit 0
 
+      - name: Check if ECS repository exists
+        id: check_repository
+        run: |
+            aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY_NAME}} || exit 0
+        
+      - name: Check if ECS task definition exists
+        id: check_task_definition
+        run: |
+            aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_NAME}} || exit 0
 
+      - name: Create ECS cluster if not exists
+        if: steps.check_cluster.outputs.stdout == ''
+        run: |
+          aws ecs create-cluster --cluster-name ${{ env.ECS_CLUSTER_NAME }}
+
+      - name: Create ECR if not exists
+        id: create_ecr
+        run: |
+            aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY_NAME}}
+      
       - name: Push the repository
         env:
-              ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-              ECR_REPOSITORY: nextjs # Replace with your repository name
-              IMAGE_TAG1: app
-              IMAGE_TAG2: db
+            IMAGE_TAG1: app
         run: |
-            docker tag $IMAGE_TAG1 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-            docker tag postgres $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG2
-      - name: Register task definition
-        run: |
-            TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition app --query "taskDefinition.taskDefinitionArn" --output text)
-            echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
+          docker tag $IMAGE_TAG1 ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
+          docker push ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG1
+
+      - name: Create task definiton
+        id: create_task
+        run: | 
+                aws ecs register-task-definition \
+                --family ${{env.TASK_NAME}} \
+                --execution-role-arn "arn:aws:iam::${{ secrets.YOUR_ACCOUNT_ID}}:role/${{env.ECS_TASK_ROLE}}" \
+                --container-definitions '[
+                    {
+                      "name": "App",
+                     "image": ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1,
+                      "memoryReservation": 512,
+                      "cpu": 256,
+                      "essential": true,
+                      "portMappings": [
+                          {
+                            "containerPort": 80,
+                            "hostPort": 3000
+                          }
+                                    ]
+                    }
+                            ]' \
+                --requires-compatibilities FARGATE
+
 
       - name: Update and Run ECS Service
         run: |
-          aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $TASK_DEF_ARN --force-new-deployment
+            if aws ecs describe-services --cluster ${{ env.ECS_CLUSTER_NAME}} --service ${{env.ECS_SERVICE_NAME}} &> /dev/null; then
+            aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME}} --service ${{env.ECS_SERVICE_NAME}} --force-new-deployment
+            else
+            aws ecs create-service --cluster ${{ env.ECS_CLUSTER_NAME}}  --service-name ${{env.ECS_SERVICE_NAME}} --task-definition ${{ env.TASK_NAME}}
+            fi
+          # aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $TASK_DEF_ARN --force-new-deployment
 
       
       
