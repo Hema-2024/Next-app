@@ -86,11 +86,11 @@ jobs:
             IMAGE_TAG1: app
         run: |
 
-          IMAGE_NAME=${{ secrets.YOUR_ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
-          IMAGE_EXISTS=$(aws ecr describe-images --repository-name $ECR_REPOSITORY_NAME --image-ids imageTag=$IMAGE_TAG1 --region ${{ env.REGION }} || true)
-          if [ -n "$IMAGE_EXISTS" ]; then
-            aws ecr batch-delete-image --repository-name $ECR_REPOSITORY_NAME --image-ids imageTag=$IMAGE_TAG1 --region ${{ env.REGION }}
-          fi
+          # IMAGE_NAME=${{ secrets.YOUR_ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
+          # IMAGE_EXISTS=$(aws ecr describe-images --repository-name $ECR_REPOSITORY_NAME --image-ids imageTag=$IMAGE_TAG1 --region ${{ env.REGION }} || true)
+          # if [ -n "$IMAGE_EXISTS" ]; then
+            # aws ecr batch-delete-image --repository-name $ECR_REPOSITORY_NAME --image-ids imageTag=$IMAGE_TAG1 --region ${{ env.REGION }}
+          # fi
           docker tag $IMAGE_TAG1 ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
           docker push ${{ secrets.YOUR_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG1
 
