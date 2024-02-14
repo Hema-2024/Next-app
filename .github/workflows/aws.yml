@@ -104,13 +104,11 @@ jobs:
                     {
                       "name": "App",
                      "image": "637423497420.dkr.ecr.eu-west-2.amazonaws.com/my-repo:app",
-                      "memoryReservation": 512,
-                      "cpu": 256,
                       "essential": true
                     }
                             ]' \
                 --requires-compatibilities FARGATE \
-                --network-mode awsvpc
+                --network-mode awsvpc --cpu 1024 --memory 1024
 
 
       - name: Update and Run ECS Service
