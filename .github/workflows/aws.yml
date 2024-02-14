@@ -86,7 +86,7 @@ jobs:
           IMAGE_TAG1: app
                 
         run: |
-            aws ecr get-login-password --region ${{env.REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}} .amazonaws.com
+            aws ecr get-login-password --region ${{env.REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com
             docker tag $IMAGE_TAG1  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
             docker push  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
 
