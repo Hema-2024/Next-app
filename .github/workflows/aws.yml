@@ -115,7 +115,8 @@ jobs:
                                     ]
                     }
                             ]' \
-                --requires-compatibilities FARGATE
+                --requires-compatibilities FARGATE \
+                --network-mode awsvpc
 
 
       - name: Update and Run ECS Service
