@@ -103,7 +103,7 @@ jobs:
                 --container-definitions '[
                     {
                       "name": "App",
-                     "image": ""$ACCOUNT".dkr.ecr.$REGION.amazonaws.com/"$ECR_REPOSITORY_NAME":app",
+                     "image": "`$ACCOUNT`.dkr.ecr.$REGION.amazonaws.com/`$ECR_REPOSITORY_NAME`:app",
                       "essential": true
                     }
                             ]' \
