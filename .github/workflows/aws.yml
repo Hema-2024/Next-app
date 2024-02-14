@@ -88,8 +88,8 @@ jobs:
           IMAGE_TAG1: app
                 
         run: |
-            IMAGE="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1"
-            echo "IMAGE_TAG=$IMAGE" >> $GITHUB_ENV
+            # IMAGE="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1"
+            # echo "IMAGE_TAG=$IMAGE">>$GITHUB_ENV
             aws ecr get-login-password --region ${{env.REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com
             docker tag $IMAGE_TAG1  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
             docker push  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
@@ -103,7 +103,7 @@ jobs:
                 --container-definitions '[
                     {
                       "name": "App",
-                     "image": "$IMAGE_TAG",
+                     "image": "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1",
                       "memoryReservation": 512,
                       "cpu": 256,
                       "essential": true,
