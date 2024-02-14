@@ -105,6 +105,14 @@ jobs:
                       "name": "App",
                      "image": "637423497420.dkr.ecr.eu-west-2.amazonaws.com/my-repo:app",
                       "essential": true
+                      "logConfiguration": {
+                        "logDriver": "awslogs",
+                        "options": {
+                          "awslogs-group": "/ecs/task-app",
+                          "awslogs-region": "eu-west-2",
+                          "awslogs-stream-prefix": "ecs"
+                        }
+                      }
                     }
                             ]' \
                 --requires-compatibilities FARGATE \
