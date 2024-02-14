@@ -23,6 +23,7 @@ jobs:
           elbName=$(jq -r '.aws.elbName' config.json)
           ecsTaskExecutionRole=$(jq -r '.aws.ecsTaskExecutionRole' config.json)
           taskdef=$(jq -r '.aws.taskdef' config.json)
+          account=$(jq -r '.aws.account' config.json)
 
           echo "REGION=$region" >> $GITHUB_ENV
           echo "ECR_REPOSITORY_NAME=$ecrRepositoryName" >> $GITHUB_ENV
@@ -31,6 +32,7 @@ jobs:
           echo "ELB_NAME=$elbName" >> $GITHUB_ENV
           echo "ECS_TASK_ROLE=$ecsTaskExecutionRole" >>$GITHUB_ENV
           echo "TASK_NAME=$taskdef" >>$GITHUB_ENV
+          echo "ACCOUNT=$(account)" >>$GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -86,7 +88,7 @@ jobs:
           IMAGE_TAG1: app
                 
         run: |
-            IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1"
+            IMAGE="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1"
             echo "IMAGE_TAG=$IMAGE" >> $GITHUB_ENV
             aws ecr get-login-password --region ${{env.REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com
             docker tag $IMAGE_TAG1  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
