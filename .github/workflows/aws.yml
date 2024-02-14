@@ -113,15 +113,24 @@ jobs:
 
       - name: Update and Run ECS Service
         run: |
-          SERVICE_EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$REGION" --query "services[?serviceName=='$ECS_SERVICE_NAME'].serviceName" --output text)
-
-  
-          if [ "$SERVICE_EXISTS" = "$ECS_SERVICE_NAME" ]; then
-              echo "Service exists. Updating service..."
-              aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --force-new-deployment --region "$REGION"
-          else
-            echo "Service does not exist. Creating service..."
-            aws ecs create-service --cluster "$ECS_CLUSTER_NAME" --service-name "$ECS_SERVICE_NAME" --task-definition ${{env.TASK_NAME}} --desired-count 1 --launch-type "FARGATE" --region "$REGION"
-          fi
+            DEFAULT_VPC_ID=$(aws ec2 describe-vpcs --filter "Name=is-default,Values=true" --query "Vpcs[0].VpcId" --region "$REGION" --output text)
+            DEFAULT_SUBNETS=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$DEFAULT_VPC_ID" "Name=default-for-az,Values=true" --query "Subnets[*].SubnetId" --region "$REGION" --output text)
+            DEFAULT_SECURITY_GROUP=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=$DEFAULT_VPC_ID" "Name=group-name,Values='default'" --query "SecurityGroups[0].GroupId" --region "$REGION" --output text)
+            SERVICE_EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$REGION" --query "services[?serviceName=='$ECS_SERVICE_NAME'].serviceName" --output text)
+            if [ "$SERVICE_EXISTS" = "$ECS_SERVICE_NAME" ]; then
+                echo "Service exists. Updating service..."
+                aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --force-new-deployment --region "$REGION"
+            else
+                echo "Service does not exist. Creating service..."
+                aws ecs create-service \
+              --cluster "$ECS_CLUSTER_NAME" \
+              --service-name "$ECS_SERVICE_NAME" \
+              --task-definition "${TASK_NAME}" \
+              --desired-count 1 \
+              --launch-type "FARGATE" \
+              --network-configuration "awsvpcConfiguration={subnets=[$DEFAULT_SUBNETS],securityGroups=[$DEFAULT_SECURITY_GROUP],assignPublicIp=ENABLED}" \
+              --region "$REGION"
+            fi
+        
       
       
