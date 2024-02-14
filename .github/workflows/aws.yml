@@ -106,7 +106,7 @@ jobs:
                      "image": "637423497420.dkr.ecr.eu-west-2.amazonaws.com/my-repo:app",
                       "memoryReservation": 512,
                       "cpu": 256,
-                      "essential": true,
+                      "essential": true
                     }
                             ]' \
                 --requires-compatibilities FARGATE \
