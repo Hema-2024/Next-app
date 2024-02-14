@@ -99,7 +99,7 @@ jobs:
                 --container-definitions '[
                     {
                       "name": "App",
-                     "image": "${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1",
+                     "image": "${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1",
                       "memoryReservation": 512,
                       "cpu": 256,
                       "essential": true,
