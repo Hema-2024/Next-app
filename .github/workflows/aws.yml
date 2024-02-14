@@ -113,12 +113,15 @@ jobs:
 
       - name: Update and Run ECS Service
         run: |
-            if aws ecs describe-services --cluster ${{ env.ECS_CLUSTER_NAME}} --service ${{env.ECS_SERVICE_NAME}} &> /dev/null; then
-            aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME}} --service ${{env.ECS_SERVICE_NAME}} --force-new-deployment
-            else
-            aws ecs create-service --cluster ${{ env.ECS_CLUSTER_NAME}}  --service-name ${{env.ECS_SERVICE_NAME}} --task-definition ${{ env.TASK_NAME}}
-            fi
-          # aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $TASK_DEF_ARN --force-new-deployment
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$REGION" --query "services[?serviceName=='$ECS_SERVICE_NAME'].serviceName" --output text)
 
+  
+          if [ "$SERVICE_EXISTS" = "$ECS_SERVICE_NAME" ]; then
+              echo "Service exists. Updating service..."
+              aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --force-new-deployment --region "$REGION"
+          else
+            echo "Service does not exist. Creating service..."
+            aws ecs create-service --cluster "$ECS_CLUSTER_NAME" --service-name "$ECS_SERVICE_NAME" --task-definition task-app --load-balancers "loadBalancerName=$ELB_NAME,containerName=container-name,containerPort=container-port" --region "$REGION"
+          fi
       
       
