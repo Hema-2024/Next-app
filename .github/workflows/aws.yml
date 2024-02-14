@@ -99,7 +99,7 @@ jobs:
         run: | 
               aws ecs register-task-definition \
               --family "${TASK_NAME}" \
-              --execution-role-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${ECS_TASK_ROLE}" \
+              --execution-role-arn "arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/${{env.ECS_TASK_ROLE}}" \
               --container-definitions '[
                       {
                     "name": "App",
