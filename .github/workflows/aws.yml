@@ -89,10 +89,6 @@ jobs:
             aws ecr get-login-password --region ${{env.REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com
             docker tag $IMAGE_TAG1  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
             docker push  ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1
-
-      - name: Retrieve AWS account ID
-        id: get-account-id
-        run: echo "AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)" >> $GITHUB_ENV
           
       - name: Create task definiton
         id: create_task
@@ -103,7 +99,7 @@ jobs:
                 --container-definitions '[
                     {
                       "name": "App",
-                     "image": ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1,
+                     "image": "${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.REGION}}.amazonaws.com/$ECR_REPOSITORY_NAME:$IMAGE_TAG1",
                       "memoryReservation": 512,
                       "cpu": 256,
                       "essential": true,
