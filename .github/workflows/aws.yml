@@ -32,7 +32,7 @@ jobs:
           echo "ELB_NAME=$elbName" >> $GITHUB_ENV
           echo "ECS_TASK_ROLE=$ecsTaskExecutionRole" >>$GITHUB_ENV
           echo "TASK_NAME=$taskdef" >>$GITHUB_ENV
-          echo "ACCOUNT=$(account)" >>$GITHUB_ENV
+          echo "ACCOUNT=$account" >>$GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
