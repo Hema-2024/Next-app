@@ -127,7 +127,7 @@ jobs:
             SERVICE_EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$REGION" --query "services[?serviceName=='$ECS_SERVICE_NAME'].serviceName" --output text)
             if [ "$SERVICE_EXISTS" = "$ECS_SERVICE_NAME" ]; then
                 echo "Service exists. Updating service..."
-                aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --force-new-deployment --region "$REGION"
+                aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --task-definition "${TASK_NAME}" --force-new-deployment --region "$REGION"
             else
                 echo "Service does not exist. Creating service..."
                 aws ecs create-service \
