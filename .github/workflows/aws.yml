@@ -97,26 +97,18 @@ jobs:
       - name: Create task definiton
         id: create_task
         run: | 
-                aws ecs register-task-definition \
-                --family ${{env.TASK_NAME}} \
-                --execution-role-arn "arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/${{env.ECS_TASK_ROLE}}" \
-                --container-definitions '[
-                    {
-                      "name": "App",
-                     "image": "637423497420.dkr.ecr.eu-west-2.amazonaws.com/my-repo:app",
-                      "essential": true,
-                      "logConfiguration": {
-                        "logDriver": "awslogs",
-                        "options": {
-                          "awslogs-group": "/ecs/task-app",
-                          "awslogs-region": "eu-west-2",
-                          "awslogs-stream-prefix": "ecs"
-                        }
-                      }
-                    }
-                            ]' \
-                --requires-compatibilities FARGATE \
-                --network-mode awsvpc --cpu 1024 --memory 2048
+              aws ecs register-task-definition \
+              --family "${TASK_NAME}" \
+              --execution-role-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${ECS_TASK_ROLE}" \
+              --container-definitions '[
+                      {
+                    "name": "App",
+                    "image": "'"$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY_NAME:app"'",
+                    "essential": true
+                     }
+                    ]' \
+               --requires-compatibilities FARGATE \
+              --network-mode awsvpc --cpu 1024 --memory 2048
 
 
       - name: Update and Run ECS Service
