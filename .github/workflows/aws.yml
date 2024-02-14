@@ -108,7 +108,7 @@ jobs:
                     }
                             ]' \
                 --requires-compatibilities FARGATE \
-                --network-mode awsvpc --cpu 1024 --memory 1024
+                --network-mode awsvpc --cpu 1 vCPU --memory 3 GB
 
 
       - name: Update and Run ECS Service
