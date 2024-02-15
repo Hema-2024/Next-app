@@ -4,7 +4,7 @@
       "ecrRepositoryName": "my-repo",
       "ecsClusterName": "my-cluster",
       "ecsServiceName": "my-service",
-      "elbName": "my-load-balancer-name-1",
+      "elbName": "my-load-balancer-name",
       "ecsTaskExecutionRole": "ecsTaskExecutionRole",
       "taskdef": "task-app",
       "account":"637423497420"

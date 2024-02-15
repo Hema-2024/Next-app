@@ -139,7 +139,7 @@ jobs:
                   echo "Load balancer exists. Using existing load balancer..."
                   ELB_ARN=$EXISTING_LB_ARN
                 fi
-                TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group1 --protocol HTTPS --port 443 --vpc-id "$DEFAULT_VPC_ID" --target-type ip --health-check-protocol HTTPS --health-check-port 443 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text)
+                TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group --protocol HTTPS --port 443 --vpc-id "$DEFAULT_VPC_ID" --target-type ip --health-check-protocol HTTPS --health-check-port 443 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text)
                 echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
                 echo "ELB_ARN=$ELB_ARN" >> $GITHUB_ENV
                 echo "Service does not exist. Creating service..."
