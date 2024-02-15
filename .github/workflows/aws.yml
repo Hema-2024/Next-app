@@ -52,7 +52,7 @@ jobs:
       - name: Build and push App Docker image
         run: |
             echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
-            docker-compose up --build -d 
+            docker build . 
 
       - name: Check if ECS cluster exists
         id: check_cluster
@@ -79,10 +79,10 @@ jobs:
         run: |
           aws ecs create-cluster --cluster-name ${{ env.ECS_CLUSTER_NAME }}
 
-      # - name: Create ECR if not exists
-      #   if: steps.check_repository.outputs.REPO_EXISTS == 'false'
-      #   run: |
-      #       aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY_NAME }}
+      - name: Create ECR if not exists
+        if: steps.check_repository.outputs.REPO_EXISTS == 'false'
+        run: |
+            aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY_NAME }}
       
       - name: Push the repository
         env:
