@@ -141,20 +141,20 @@ jobs:
                      --query "LoadBalancers[0].LoadBalancerArn" \
                      --output text)
                 TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group2 \
-                              --protocol HTTPS \
-                              --port 443 \
+                              --protocol HTTP \
+                              --port 80 \
                               --vpc-id "$DEFAULT_VPC_ID" \
                               --target-type ip \
-                              --health-check-protocol HTTPS \
-                              --health-check-port 443 \
+                              --health-check-protocol HTTP \
+                              --health-check-port 80 \
                               --region "$REGION" \
                               --query "TargetGroups[0].TargetGroupArn" \
                               --output text)
                 echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
                 echo "ELB_ARN=$ELB_ARN" >> $GITHUB_ENV
                 LISTENER_ARN=$(aws elbv2 create-listener --load-balancer-arn "$ELB_ARN" \
-                          --protocol HTTPS \
-                          --port 443 \
+                          --protocol HTTP \
+                          --port 80 \
                           --default-actions Type=forward,TargetGroupArn=$TARGET_GROUP_ARN \
                           --query "Listeners[0].ListenerArn" \
                           --output text)
