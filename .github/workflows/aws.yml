@@ -111,7 +111,8 @@ jobs:
                           "hostPort": 3000,
                           "protocol": "tcp",
                           "appProtocol": "http"
-                      },
+                      }
+                    ],
                     "essential": true
                      }
                     ]' \
