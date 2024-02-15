@@ -139,11 +139,11 @@ jobs:
                   echo "Load balancer exists. Using existing load balancer..."
                   ELB_ARN=$EXISTING_LB_ARN
                 fi
-                TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups --names sample-group1 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text 2>/dev/null)
+                TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups --names sample-group2 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text 2>/dev/null)
 
                 if [ -z "$TARGET_GROUP_ARN" ]; then
                    echo "Target group does not exist. Creating target group..."
-                   TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group1 --protocol HTTPS --port 443 --vpc-id "$DEFAULT_VPC_ID" --target-type ip --health-check-protocol HTTPS --health-check-port 443 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text)
+                   TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group2 --protocol HTTPS --port 443 --vpc-id "$DEFAULT_VPC_ID" --target-type ip --health-check-protocol HTTPS --health-check-port 443 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text)
                 else
                   echo "Target group already exists. Updating target group..."
                   aws elbv2 modify-target-group --target-group-arn "$TARGET_GROUP_ARN" --health-check-protocol HTTPS --health-check-port 443 --region "$REGION"
