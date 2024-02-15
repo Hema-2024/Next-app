@@ -140,7 +140,7 @@ jobs:
                      --region "$REGION" \
                      --query "LoadBalancers[0].LoadBalancerArn" \
                      --output text)
-                TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group2 \
+                TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group3 \
                               --protocol HTTP \
                               --port 80 \
                               --vpc-id "$DEFAULT_VPC_ID" \

@@ -2,9 +2,9 @@
     "aws": {
       "region": "eu-west-2",
       "ecrRepositoryName": "my-repo",
-      "ecsClusterName": "my-cluster-name",
+      "ecsClusterName": "my-cluster-1",
       "ecsServiceName": "my-service-name",
-      "elbName": "my-load-balancer-name-test",
+      "elbName": "my-load-balancer-name",
       "ecsTaskExecutionRole": "ecsTaskExecutionRole",
       "taskdef": "task-app",
       "account":"637423497420"
