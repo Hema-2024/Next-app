@@ -150,8 +150,6 @@ jobs:
                 fi
 
                 echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
-                TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group --protocol HTTPS --port 443 --vpc-id "$DEFAULT_VPC_ID" --target-type ip --health-check-protocol HTTPS --health-check-port 443 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text)
-                echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
                 echo "ELB_ARN=$ELB_ARN" >> $GITHUB_ENV
                 echo "Service does not exist. Creating service..."
                 aws ecs create-service \
