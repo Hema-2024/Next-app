@@ -7,6 +7,6 @@
       "elbName": "my-load-balancer-name",
       "ecsTaskExecutionRole": "ecsTaskExecutionRole",
       "taskdef": "task-app",
-      "account":"637423497420"
+      "account":"****"
     }
   }
