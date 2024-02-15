@@ -130,21 +130,30 @@ jobs:
                 echo "Service exists. Updating service..."
                 aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --task-definition "${TASK_NAME}" --force-new-deployment --region "$REGION"
             else
-                echo "Service does not exist. Creating service..."
-                ELB_ARN=$(aws elbv2 create-load-balancer --name "$ELB_NAME" --subnets $(echo $DEFAULT_SUBNETS | tr ',' ' ') --security-groups $DEFAULT_SECURITY_GROUP --scheme internet-facing --type application --region "$REGION" --query "LoadBalancers[0].LoadBalancerArn" --output text)
+                EXISTING_LB_ARN=$(aws elbv2 describe-load-balancers --names "$ELB_NAME" --region "$REGION" --query "LoadBalancers[0].LoadBalancerArn" --output text 2>/dev/null)
+            
+                if [ -z "$EXISTING_LB_ARN" ]; then
+                  echo "Load balancer does not exist. Creating load balancer..."
+                  ELB_ARN=$(aws elbv2 create-load-balancer --name "$ELB_NAME" --subnets $(echo $DEFAULT_SUBNETS | tr ',' ' ') --security-groups $DEFAULT_SECURITY_GROUP --scheme internet-facing --type application --region "$REGION" --query "LoadBalancers[0].LoadBalancerArn" --output text)
+                else
+                  echo "Load balancer exists. Using existing load balancer..."
+                  ELB_ARN=$EXISTING_LB_ARN
+                fi
                 TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name sample-group1 --protocol HTTPS --port 443 --vpc-id "$DEFAULT_VPC_ID" --target-type ip --health-check-protocol HTTPS --health-check-port 443 --region "$REGION" --query "TargetGroups[0].TargetGroupArn" --output text)
                 echo "TARGET_GROUP_ARN=$TARGET_GROUP_ARN" >> $GITHUB_ENV
                 echo "ELB_ARN=$ELB_ARN" >> $GITHUB_ENV
+                echo "Service does not exist. Creating service..."
                 aws ecs create-service \
-              --cluster "$ECS_CLUSTER_NAME" \
-              --service-name "$ECS_SERVICE_NAME" \
-              --task-definition "${TASK_NAME}" \
-              --desired-count 1 \
-              --launch-type "FARGATE" \
-              --network-configuration "awsvpcConfiguration={subnets=[$DEFAULT_SUBNETS],securityGroups=[$DEFAULT_SECURITY_GROUP],assignPublicIp=ENABLED}" \
-              --load-balancers "targetGroupArn=$TARGET_GROUP_ARN,containerName=App,containerPort=3000" \
-              --region "$REGION"
+                --cluster "$ECS_CLUSTER_NAME" \
+                --service-name "$ECS_SERVICE_NAME" \
+                --task-definition "${TASK_NAME}" \
+                --desired-count 1 \
+                --launch-type "FARGATE" \
+                --network-configuration "awsvpcConfiguration={subnets=[$DEFAULT_SUBNETS],securityGroups=[$DEFAULT_SECURITY_GROUP],assignPublicIp=ENABLED}" \
+                --load-balancers "targetGroupArn=$TARGET_GROUP_ARN,containerName=App,containerPort=3000" \
+                --region "$REGION"
             fi
+            
         
       
       
