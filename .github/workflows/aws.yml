@@ -52,7 +52,7 @@ jobs:
       - name: Build and push App Docker image
         run: |
             echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
-            docker build . 
+            docker build -t app .
 
       - name: Check if ECS cluster exists
         id: check_cluster
