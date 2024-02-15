@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          sparse-checkout: .
       
       - name: Read config.json and set environment variables
         id: read_config
