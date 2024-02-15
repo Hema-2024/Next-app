@@ -69,10 +69,10 @@ jobs:
               echo "::set-output name=REPO_EXISTS::false"
             fi
         
-      - name: Check if ECS task definition exists
-        id: check_task_definition
-        run: |
-            aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_NAME}} || exit 0
+      # - name: Check if ECS task definition exists
+      #   id: check_task_definition
+      #   run: |
+      #       aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_NAME}} || exit 0
 
       - name: Create ECS cluster if not exists
         if: steps.check_cluster.outputs.stdout == ''
